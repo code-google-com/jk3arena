@@ -1,0 +1,24 @@
+#include <curl.h>
+
+CURL *curl;
+  CURLcode res;
+ 
+  curl = curl_easy_init();
+  if(curl) {
+    curl_easy_setopt(curl, CURLOPT_URL, "http://clanmod.org/jk3arena.com/test/index.php?pass=An1c3pass&test1");
+    res = curl_easy_perform(curl);
+ 
+    /* always cleanup */ 
+    curl_easy_cleanup(curl);
+  }
+
+JK2game Properties Page > Linker > Input > Additional Dependencies > "winmm.lib ./lib/libcurl_imp.lib ./lib/mysys.lib ./lib/regex.lib ./lib/zlib.lib ./lib/strings.lib"
+
+Place libcurl.dll next to jampded.exe
+
+
+
+-----------------------------
+
+When debuging jk3arena youll notice access violations, move your mouse over
+the queries and you'll get real results of why the program crashes.
