@@ -1,0 +1,59 @@
+#include "libircclient.h"
+
+else if (Q_stricmp (cmd, "joinirc") == 0)
+	{
+	
+irc_callbacks_t	callbacks;
+	
+irc_ctx_t ctx;
+	irc_session_t * s;
+
+
+	
+memset (&callbacks, 0, sizeof(callbacks));
+
+	
+callbacks.event_connect = event_connect;
+
+	
+	
+s = irc_create_session (&callbacks);
+
+	
+if ( !s )
+	{
+		
+trap_SendServerCommand( clientNum, va("print \"Could not create session\n\"" ) );
+return;
+	
+}
+
+	
+ctx.channel = "#clanmod";
+    
+ctx.nick = "Test";
+
+	
+irc_set_ctx (s, &ctx);
+
+	
+if ( irc_connect (s, "irc.gamesurge.net", 6667, 0, "Test", 0, 0) )
+	{
+			
+trap_SendServerCommand( clientNum, va("print \"ERROR\n\"" ) );
+return;
+	
+}
+
+
+irc_run (s);
+
+
+trap_SendServerCommand( clientNum, va("print \"ERROR\n\"" ) );
+
+}
+
+JK2game Properties Page > Linker > Input > Additional Dependencies > ADD ./lib/libircclient.lib
+
+Place libircclient.dll next to jampded.exe
+

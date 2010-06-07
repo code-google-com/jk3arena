@@ -12,13 +12,7 @@ CURL *curl;
     curl_easy_cleanup(curl);
   }
 
-JK2game Properties Page > Linker > Input > Additional Dependencies > "winmm.lib ./lib/libcurl_imp.lib ./lib/mysys.lib ./lib/regex.lib ./lib/zlib.lib ./lib/strings.lib"
+JK2game Properties Page > Linker > Input > Additional Dependencies > ADD ./lib/libcurl_imp.lib
 
 Place libcurl.dll next to jampded.exe
 
-
-
------------------------------
-
-When debuging jk3arena youll notice access violations, move your mouse over
-the queries and you'll get real results of why the program crashes.
