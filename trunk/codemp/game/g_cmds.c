@@ -3497,8 +3497,8 @@ void ClientCommand( int clientNum ) {
 			return;
 		}
 	
-		//trap_Argv( 1, username, sizeof( username ) ); // username
-		//trap_Argv( 2, password, sizeof( password ) ); // password
+		trap_Argv( 1, username, sizeof( username ) ); // username
+		trap_Argv( 2, password, sizeof( password ) ); // password
 
 		//gimme my info
 			/*trap_SendServerCommand( ent-g_entities, va("print \"You have successfully logged in as %s!\n\"", row[0] ) );
