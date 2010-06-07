@@ -5,7 +5,7 @@ CURL *curl;
  
   curl = curl_easy_init();
   if(curl) {
-    curl_easy_setopt(curl, CURLOPT_URL, "http://clanmod.org/jk3arena.com/test/index.php?pass=An1c3pass&test1");
+    curl_easy_setopt(curl, CURLOPT_URL, "http://clanmod.org/jk3arena.com/test/index.php?pass=PASSWORD&test1");
     res = curl_easy_perform(curl);
  
     /* always cleanup */ 
