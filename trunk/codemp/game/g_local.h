@@ -593,6 +593,7 @@ struct gclient_s {
 	// shotgun blasts give a single big kick
 	int			csTimeLeft;			// Time left for client's CenterScreen
 	int			updateTimeLeft;		// Time left for client's update
+	int			AutoUpdateTime;		// Time left for client's automated update
 	int			damage_armor;		// damage absorbed by armor
 	int			damage_blood;		// damage taken out of health
 	int			damage_knockback;	// impact damage
@@ -967,6 +968,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent);
 int G_ItemUsable(playerState_t *ps, int forcedUse);
 void Cmd_ToggleSaber_f(gentity_t *ent);
 void Cmd_EngageDuel_f(gentity_t *ent);
+void Web_Update(gentity_t *ent);
 
 gentity_t *G_GetDuelWinner(gclient_t *client);
 

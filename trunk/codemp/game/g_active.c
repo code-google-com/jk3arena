@@ -802,6 +802,16 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 		if (client->updateTimeLeft > 0){
 			client->updateTimeLeft--;
 		}
+		if (client->AutoUpdateTime > 0){
+			client->AutoUpdateTime--;
+		}
+
+		//every 5 minutes update the client.
+		if (client->AutoUpdateTime == 0){
+			Web_Update( ent );
+			client->AutoUpdateTime = 300;
+		}
+
 		if (client->sess.loggedin == qtrue){
 		if (strcmp(ent->client->pers.experience_gain, "^4Flag Captured!\n^3+10") == 0 ||
 			strcmp(ent->client->pers.experience_gain, "^5Flag Assist!\n^3+10") == 0){

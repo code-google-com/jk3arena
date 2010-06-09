@@ -265,6 +265,60 @@ char *Curl_Address( const char *address ) {
 
 /*
 ==================
+Arena: Curl_Address2
+Created 6/9/2010 by NeWaGe
+Curl's a web address file. Just want to send a string of information.
+==================
+*/
+void Curl_Address2( char *address ) {
+	CURL *curl;
+	CURLcode res;
+	curl = curl_easy_init();
+	if(curl) {
+		struct string s; 
+		init_string(&s); 
+
+		curl_easy_setopt(curl, CURLOPT_URL, address);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc); 
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s); 
+		res = curl_easy_perform(curl);
+
+		curl_easy_cleanup(curl);
+	}
+}
+
+/*
+==================
+Arena: Curl_Address
+Created 6/4/2010 by NeWaGe
+Curl's a web address file, and gives me the information.
+==================
+*/
+void Web_Update ( gentity_t *ent ) {
+	if (ent->client->sess.loggedin == qtrue){
+		//info here
+		int deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives;
+		char *rank, *username, *password, *ingame_name;
+		deaths = ent->client->sess.todays_deaths;
+		kills = ent->client->sess.todays_kills;
+		experience = ent->client->sess.todays_experience;
+		captures = ent->client->sess.todays_captures;
+		returns = ent->client->sess.todays_returns;
+		duel_losses = ent->client->sess.todays_duel_losses;
+		duel_wins = ent->client->sess.todays_duel_wins;
+		objectives = ent->client->sess.todays_objectives;
+		rank = ent->client->sess.rank;
+		username = ent->client->sess.username;
+		password = ent->client->sess.password;
+		ingame_name = ent->client->pers.netname;
+
+		Curl_Address2( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&update_info&acc_username=%s&acc_pass=%s&deaths=%s&kills=%s&experience=%s&captures=%s&returns=%s&duel_losses=%s&duel_wins=%s&objectives=%s&rank=%s&ingame_name=%s", am_sqlpass.string, username, password, deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives, rank, ingame_name));
+		trap_SendServerCommand( ent-g_entities, "print \"Updated account information.\n\"");
+	}
+}
+
+/*
+==================
 SanitizeString
 
 Remove case and control characters
@@ -3450,18 +3504,10 @@ void ClientCommand( int clientNum ) {
 	//Arena: My commands below here
 	else if (Q_stricmp (cmd, "help") == 0)
 	{
-		trap_SendServerCommand( clientNum, va("print \"^3JK3 Arena is a database driven JK3 mod.\n\n^2You can visit our website to register, view stats, or chat with the community at www.jk3arena.com\n\nType in /register to register an account ingame.\nType in /login to login to your account.\nType in /logout to log out of your account.\nType in /update to manually update your information to the database.\nType in /resetaccount to reset your stats in the database.\nType in /info to see your current information.\n\"" ) );
+		trap_SendServerCommand( clientNum, va("print \"^3JK3 Arena is a database driven JK3 mod.\n\n^2You can visit our website to register, view stats, or chat with the community at www.jk3arena.net\n\nType in /register to register an account ingame.\nType in /login to login to your account.\nType in /logout to log out of your account.\nType in /update to manually update your information to the database.\nType in /resetaccount to reset your stats in the database.\nType in /info to see your current information.\n\"" ) );
 	}
 	/*else if (Q_stricmp (cmd, "register") == 0)
 	{
-		MYSQL *conn;
-		MYSQL_RES *res;
-		MYSQL_ROW row;
-
-		char *server = "clanmod.org";
-		char *user = "arena";
-		char *pass = am_sqlpass.string;
-		char *database = "newage_phpbb2";
 		char   username[100];
 		char   password[100];
 		char   email[100];
@@ -3473,7 +3519,7 @@ void ClientCommand( int clientNum ) {
 		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 		if (ent->client->pers.cant_register == qtrue){
-			trap_SendServerCommand( clientNum, va("print \"You already registered an account.\nIf you would like to register more than 1 account on this IP please go to www.jk3arena.com and request another account.\n\"" ) );
+			trap_SendServerCommand( clientNum, va("print \"You already registered an account.\nIf you would like to register more than 1 account on this IP please go to www.jk3arena.net and request another account.\n\"" ) );
 			return;
 		}
 
@@ -3508,7 +3554,7 @@ void ClientCommand( int clientNum ) {
 		res = mysql_use_result(conn);
 
 		while((row = mysql_fetch_row(res)) != NULL) {
-				trap_SendServerCommand( ent-g_entities, va("print \"You are already registered as %s.\nIf you would like to register more than 1 account on this IP please go to www.jk3arena.com and request another account.\n\"", row[0] ) );
+				trap_SendServerCommand( ent-g_entities, va("print \"You are already registered as %s.\nIf you would like to register more than 1 account on this IP please go to www.jk3arena.net and request another account.\n\"", row[0] ) );
 				ent->client->pers.cant_register = qtrue;
 				return;
 		}
@@ -3522,7 +3568,7 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", password ) );
 			trap_SendServerCommand( ent-g_entities, va("print \"\n^3EMAIL: \"" ) );
 			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", email ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"\n^1Do not tell anyone your password!\n^7You may now login using the /login command.\nYou can go onto any Arena server and login with this account.\nYour account is now registered on www.jk3arena.com and the Arena network!\n\"" ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"\n^1Do not tell anyone your password!\n^7You may now login using the /login command.\nYou can go onto any Arena server and login with this account.\nYour account is now registered on www.jk3arena.net and the Arena network!\n\"" ) );
 		}
 
 		mysql_free_result(res);
@@ -3530,13 +3576,12 @@ void ClientCommand( int clientNum ) {
 	}*/
 	else if (Q_stricmp (cmd, "login") == 0)
 	{
-		char *teststring;
 		char   username[100];
 		char   password[100];
 
         if ( (trap_Argc() < 3) || (trap_Argc() > 3) ) 
         { 
-			trap_SendServerCommand( clientNum, va("print \"Usage: /login <username> <password>\n\"" ) );
+			trap_SendServerCommand( clientNum, "print \"Usage: /login <username> <password>\n\"" );
 			return;
         }
 
@@ -3544,30 +3589,33 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand( clientNum, va("print \"You are currently logged in as %s\n\"", ent->client->sess.username ) );
 			return;
 		}
+
+		if (ent->client->updateTimeLeft != 0){
+			trap_SendServerCommand( clientNum, "print \"Please wait 30 seconds after logging out to log back in.\n\"" );
+			trap_SendServerCommand( clientNum, va("print \"^5Time Remaining: ^3%i\n\"", ent->client->updateTimeLeft ) );
+			return;
+		}
 	
 		trap_Argv( 1, username, sizeof( username ) ); // username
 		trap_Argv( 2, password, sizeof( password ) ); // password
 
-		teststring = Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&username=%s&password=%s", am_sqlpass.string, username, password ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&username=%s&password=%s", am_sqlpass.string, username, password )) ) );
 
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", teststring ) );
-
-		//STILL IN TESTING STAGE. WE SUCCESSFULLY ECHO'D THE PHP SCRIPT BACK. NEED TO PUT THINGS INTO SESSIONS NOW.
-
-			/*
+		//We are going to make multiple calls to the PHP script, but its ok because they arn't MySQL related.
+		if (strcmp(ent->client->pers.login_message, "You are now logged in.") == 0) {
 			ent->client->sess.loggedin = qtrue;
-			strcpy(ent->client->sess.username, va("%s", row[0]));
-			strcpy(ent->client->sess.password, va("%s", row[1]));
-			ent->client->sess.todays_kills = atoi(row[2]);
-			ent->client->sess.todays_deaths = atoi(row[3]);
-			ent->client->sess.todays_experience = atoi(row[4]);
-			ent->client->sess.todays_captures = atoi(row[7]);
-			ent->client->sess.todays_returns = atoi(row[8]);
-			ent->client->sess.todays_duel_losses = atoi(row[6]);
-			ent->client->sess.todays_duel_wins = atoi(row[5]);
-			ent->client->sess.todays_objectives = atoi(row[9]);
-			strcpy(ent->client->sess.rank, va("%s", row[10]));*/
-
+			strcpy(ent->client->sess.username, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&acc_username", am_sqlpass.string ))) );
+			strcpy(ent->client->sess.password, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&acc_pass", am_sqlpass.string ))) );
+			ent->client->sess.todays_kills = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&kills", am_sqlpass.string )) );
+			ent->client->sess.todays_deaths = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&deaths", am_sqlpass.string )) );
+			ent->client->sess.todays_experience = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&experience", am_sqlpass.string )) );
+			ent->client->sess.todays_captures = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&captures", am_sqlpass.string )) );
+			ent->client->sess.todays_returns = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&returns", am_sqlpass.string )) );
+			ent->client->sess.todays_duel_losses = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&duel_losses", am_sqlpass.string )) );
+			ent->client->sess.todays_duel_wins = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&duel_wins", am_sqlpass.string )));
+			ent->client->sess.todays_objectives = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&objectives", am_sqlpass.string )));
+			strcpy(ent->client->sess.rank, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&rank", am_sqlpass.string ))));
+		}
 	}
 	else if (Q_stricmp (cmd, "logout") == 0)
 	{
@@ -3577,7 +3625,7 @@ void ClientCommand( int clientNum ) {
 		}
 
 		if (ent->client->updateTimeLeft != 0){
-			trap_SendServerCommand( ent-g_entities, va("print \"Please wait 30 seconds to logout again. Time Left: %i\n\"", ent->client->updateTimeLeft ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"Please wait 30 seconds to logout again.\n^5Time Left: ^3%i\n\"", ent->client->updateTimeLeft ) );
 			return;
 		}
 
@@ -3595,7 +3643,7 @@ void ClientCommand( int clientNum ) {
 		strcpy(ent->client->sess.rank, va("Youngling"));
 
 		trap_SendServerCommand( clientNum, va("print \"You have been successfully logged out.\n\"" ) );
-		ent->client->updateTimeLeft = 30;
+		ent->client->updateTimeLeft = 30; //I dont know if we need spam protection...
 	}
 	else if (Q_stricmp (cmd, "info") == 0)
 	{
@@ -3604,7 +3652,7 @@ void ClientCommand( int clientNum ) {
 				ent->client->sess.username, ent->client->sess.rank, ent->client->sess.todays_deaths, ent->client->sess.todays_kills, ent->client->sess.todays_captures,
 				ent->client->sess.todays_returns, ent->client->sess.todays_duel_wins, ent->client->sess.todays_duel_losses, ent->client->sess.todays_objectives, ent->client->sess.todays_experience, ent->client->sess.myip ) );
 		} else {
-			trap_SendServerCommand( ent-g_entities, va("print \"You must login to see your information! You can register a new account using the /register command.\n\"" ) );
+			trap_SendServerCommand( ent-g_entities, va("print \"You must login to see your information!\nUse /login <username> <password> to login.\nYou can register a new account using the /register command.\n\"" ) );
 		}
 	}
 	/*else if (Q_stricmp (cmd, "resetaccount") == 0)
@@ -3654,14 +3702,9 @@ void ClientCommand( int clientNum ) {
 		}
 		mysql_close(conn);
 	}
-	}
+	}*/
 	else if (Q_stricmp (cmd, "update") == 0)
 	{
-		MYSQL *conn;
-		char *server = "clanmod.org";
-		char *user = "arena";
-		char *pass = am_sqlpass.string;
-		char *database = "newage_phpbb2";
 		if (ent->client->sess.loggedin == qfalse){
 			trap_SendServerCommand( ent-g_entities, va("print \"You are not logged in.\n\"" ) );
 			return;
@@ -3670,18 +3713,11 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"Please wait 30 seconds to update again. Time Left: %i\n\"", ent->client->updateTimeLeft ) );
 			return;
 		}
+		Web_Update( ent );
 		if (ent->client->sess.loggedin == qtrue){
-		conn = mysql_init(NULL);
-		mysql_real_connect(conn, server, user, pass, database, 0, NULL, 0);
-			if (mysql_query(conn, va("UPDATE phpbb_users SET user_kills = ('%i'), user_deaths = ('%i'), user_experience = ('%i'), ingame_name = ('%s'), duel_wins = ('%i'), duel_losses = ('%i'), flag_captures = ('%i'), flag_returns = ('%i'), siege_objectives = ('%i'), ingame_rank = ('%s') WHERE username = '%s'", ent->client->sess.todays_kills, ent->client->sess.todays_deaths, ent->client->sess.todays_experience, ent->client->pers.netname, ent->client->sess.todays_duel_wins, ent->client->sess.todays_duel_losses, ent->client->sess.todays_captures, ent->client->sess.todays_returns, ent->client->sess.todays_objectives, ent->client->sess.rank, ent->client->sess.username) )){
-				trap_SendServerCommand( ent-g_entities, va("print \"Database NOT successfully updated!\n\"" ) );
-			} else {
-				trap_SendServerCommand( ent-g_entities, va("print \"Database successfully updated.\n\"" ) );
-			}
-		ent->client->updateTimeLeft = 30;
-		mysql_close(conn);
+			ent->client->updateTimeLeft = 30;
 		}
-	}*/
+	}
 	/*
 	else if (Q_stricmp (cmd, "kylesmash") == 0)
 	{
