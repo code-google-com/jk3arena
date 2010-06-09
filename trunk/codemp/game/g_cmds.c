@@ -209,6 +209,62 @@ char *MakeMD5 ( char *word ){
 
 /*
 ==================
+Arena: Curl_Address
+Created 6/4/2010 by NeWaGe
+Curl's a web address file, and gives me the information.
+==================
+*/
+struct string { 
+  char *ptr; 
+  size_t len; 
+}; 
+ 
+void init_string(struct string *s) { 
+  s->len = 0; 
+  s->ptr = malloc(s->len+1); 
+  if (s->ptr == NULL) { 
+    fprintf(stderr, "malloc() failed\n"); 
+    exit(EXIT_FAILURE); 
+  } 
+  s->ptr[0] = '\0'; 
+} 
+ 
+size_t writefunc(void *ptr, size_t size, size_t nmemb, struct string *s) 
+{ 
+  size_t new_len = s->len + size*nmemb; 
+  s->ptr = realloc(s->ptr, new_len+1); 
+  if (s->ptr == NULL) { 
+    fprintf(stderr, "realloc() failed\n"); 
+    exit(EXIT_FAILURE); 
+  } 
+  memcpy(s->ptr+s->len, ptr, size*nmemb); 
+  s->ptr[new_len] = '\0'; 
+  s->len = new_len; 
+ 
+  return size*nmemb; 
+} 
+
+char *Curl_Address( const char *address ) {
+	CURL *curl;
+	CURLcode res;
+	curl = curl_easy_init();
+	if(curl) {
+		struct string s; 
+		init_string(&s); 
+
+		curl_easy_setopt(curl, CURLOPT_URL, address);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc); 
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s); 
+		res = curl_easy_perform(curl); 
+ 
+		return s.ptr;
+		free(s.ptr);
+	}
+	return "error";
+}
+
+/*
+==================
 SanitizeString
 
 Remove case and control characters
@@ -3474,19 +3530,11 @@ void ClientCommand( int clientNum ) {
 	}*/
 	else if (Q_stricmp (cmd, "login") == 0)
 	{
-        char * result;
-        CURL *curl;
-        CURLcode res;
-        curl = curl_easy_init();
-        if(curl) {
-            curl_easy_setopt(curl, CURLOPT_URL, "http://clanmod.org/");
+		char *teststring;
+		char   username[100];
+		char   password[100];
 
-            res = curl_easy_perform(curl);
-            curl_easy_cleanup(curl);
-        }
-
-
-		if ( (trap_Argc() < 3) || (trap_Argc() > 3) ) 
+        if ( (trap_Argc() < 3) || (trap_Argc() > 3) ) 
         { 
 			trap_SendServerCommand( clientNum, va("print \"Usage: /login <username> <password>\n\"" ) );
 			return;
@@ -3500,8 +3548,13 @@ void ClientCommand( int clientNum ) {
 		trap_Argv( 1, username, sizeof( username ) ); // username
 		trap_Argv( 2, password, sizeof( password ) ); // password
 
-		//gimme my info
-			/*trap_SendServerCommand( ent-g_entities, va("print \"You have successfully logged in as %s!\n\"", row[0] ) );
+		teststring = Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&username=%s&password=%s", am_sqlpass.string, username, password ) );
+
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", teststring ) );
+
+		//STILL IN TESTING STAGE. WE SUCCESSFULLY ECHO'D THE PHP SCRIPT BACK. NEED TO PUT THINGS INTO SESSIONS NOW.
+
+			/*
 			ent->client->sess.loggedin = qtrue;
 			strcpy(ent->client->sess.username, va("%s", row[0]));
 			strcpy(ent->client->sess.password, va("%s", row[1]));
