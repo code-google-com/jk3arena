@@ -310,7 +310,7 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot, qbool
 	if(firstTime)
 	{//only reset skillpoints for new players.
 		sess->myip[0] = 0;
-		sess->loggedin = 0;
+		sess->loggedin = qfalse;
 		sess->todays_kills = 0;
 		sess->todays_deaths = 0;
 		sess->todays_experience = 0;
