@@ -256,6 +256,8 @@ char *Curl_Address( const char *address ) {
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writefunc); 
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &s); 
 		res = curl_easy_perform(curl); 
+
+		curl_easy_cleanup(curl);
  
 		return s.ptr;
 		free(s.ptr);
