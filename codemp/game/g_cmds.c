@@ -3508,14 +3508,12 @@ void ClientCommand( int clientNum ) {
 	{
 		trap_SendServerCommand( clientNum, va("print \"^3JK3 Arena is a database driven JK3 mod.\n\n^2You can visit our website to register, view stats, or chat with the community at www.jk3arena.net\n\nType in /register to register an account ingame.\nType in /login to login to your account.\nType in /logout to log out of your account.\nType in /update to manually update your information to the database.\nType in /resetaccount to reset your stats in the database.\nType in /info to see your current information.\n\"" ) );
 	}
-	/*else if (Q_stricmp (cmd, "register") == 0)
+	else if (Q_stricmp (cmd, "register") == 0)
 	{
 		char   username[100];
 		char   password[100];
 		char   email[100];
 
-		char *md5pass;
-		char *time;
 		char userinfo[MAX_INFO_STRING];
 		time = unix_timestring ( );
 		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
@@ -3543,39 +3541,18 @@ void ClientCommand( int clientNum ) {
 
 		trap_Argv( 1, username, sizeof( username ) );
 		trap_Argv( 2, password, sizeof( password ) );
+		trap_Argv( 3, email, sizeof( email ) );
 
-		md5pass = MakeMD5( password ); // take the password, and MD5 it.
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&register_info&username=%s&password=%s&email=%s&myip=%s", am_sqlpass.string, username, password, email, ent->client->sess.myip )) ) );
 
-		trap_Argv( 3, email, sizeof( email ) ); // email
-		
-		conn = mysql_init(NULL);
-		mysql_real_connect(conn, server, user, pass, database, 0, NULL, 0);
-
-		mysql_query(conn, va("SELECT username FROM phpbb_users WHERE registered_ip = '%s'", ent->client->sess.myip ) );
-
-		res = mysql_use_result(conn);
-
-		while((row = mysql_fetch_row(res)) != NULL) {
-				trap_SendServerCommand( ent-g_entities, va("print \"You are already registered as %s.\nIf you would like to register more than 1 account on this IP please go to www.jk3arena.net and request another account.\n\"", row[0] ) );
-				ent->client->pers.cant_register = qtrue;
-				return;
-		}
-
-		if (mysql_query(conn, va("INSERT INTO phpbb_users (username, user_password, user_lastvisit, user_regdate, user_email, registered_ip) VALUES ('%s', '%s', UNIX_TIMESTAMP('%s'), UNIX_TIMESTAMP('%s'), '%s', '%s')", username, md5pass, time, time, email, ent->client->sess.myip))){
-			trap_SendServerCommand( ent-g_entities, va("print \"An error has occured while registering. Please try another username or email.\n\"" ) );
-		} else {
-			trap_SendServerCommand( ent-g_entities, va("print \"You have successfully registered!\n^3USERNAME: \"" ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", username ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"\n^3PASSWORD: \"" ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", password ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"\n^3EMAIL: \"" ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"%s\"", email ) );
-			trap_SendServerCommand( ent-g_entities, va("print \"\n^1Do not tell anyone your password!\n^7You may now login using the /login command.\nYou can go onto any Arena server and login with this account.\nYour account is now registered on www.jk3arena.net and the Arena network!\n\"" ) );
-		}
-
-		mysql_free_result(res);
-		mysql_close(conn);
-	}*/
+		trap_SendServerCommand( ent-g_entities, va("print \"\n^3USERNAME: \"" ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\"", username ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"\n^3PASSWORD: \"" ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\"", password ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"\n^3EMAIL: \"" ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\"", email ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"\n^1Do not tell anyone your password!\n^7You may now login using the /login command.\nYou can go onto any Arena server and login with this account.\nYour account is now registered on www.jk3arena.net!\n\"" ) );
+	}
 	else if (Q_stricmp (cmd, "login") == 0)
 	{
 		char   username[100];
