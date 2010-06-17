@@ -314,7 +314,7 @@ void Web_Update ( gentity_t *ent ) {
 		password = ent->client->sess.password;
 		ingame_name = ent->client->pers.netname;
 
-		Curl_Address2( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&update_info&acc_username=%s&acc_pass=%s&deaths=%s&kills=%s&experience=%s&captures=%s&returns=%s&duel_losses=%s&duel_wins=%s&objectives=%s&rank=%s&ingame_name=%s", am_sqlpass.string, username, password, deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives, rank, ingame_name));
+		Curl_Address2( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&update_info&acc_username=%s&acc_pass=%s&deaths=%s&kills=%s&experience=%s&captures=%s&returns=%s&duel_losses=%s&duel_wins=%s&objectives=%s&rank=%s&ingame_name=%s", am_sqlpass.string, username, password, deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives, rank, ingame_name));
 		trap_SendServerCommand( ent-g_entities, "print \"Updated account information.\n\"");
 	}
 }
@@ -3515,7 +3515,6 @@ void ClientCommand( int clientNum ) {
 		char   email[100];
 
 		char userinfo[MAX_INFO_STRING];
-		time = unix_timestring ( );
 		trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 		if (ent->client->pers.cant_register == qtrue){
@@ -3543,7 +3542,7 @@ void ClientCommand( int clientNum ) {
 		trap_Argv( 2, password, sizeof( password ) );
 		trap_Argv( 3, email, sizeof( email ) );
 
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&register_info&username=%s&password=%s&email=%s&myip=%s", am_sqlpass.string, username, password, email, ent->client->sess.myip )) ) );
+		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&register_info&username=%s&password=%s&email=%s&myip=%s", am_sqlpass.string, username, password, email, ent->client->sess.myip )) ) );
 
 		trap_SendServerCommand( ent-g_entities, va("print \"\n^3USERNAME: \"" ) );
 		trap_SendServerCommand( ent-g_entities, va("print \"%s\"", username ) );
@@ -3578,22 +3577,24 @@ void ClientCommand( int clientNum ) {
 		trap_Argv( 1, username, sizeof( username ) ); // username
 		trap_Argv( 2, password, sizeof( password ) ); // password
 
-		trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&username=%s&password=%s", am_sqlpass.string, username, password )) ) );
+		strcpy(ent->client->pers.login_message, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s", am_sqlpass.string, username, password )) ) );
+		//trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s", am_sqlpass.string, username, password )) ) );
 
 		//We are going to make multiple calls to the PHP script, but its ok because they arn't MySQL related.
 		if (strcmp(ent->client->pers.login_message, "You are now logged in.") == 0) {
 			ent->client->sess.loggedin = qtrue;
-			strcpy(ent->client->sess.username, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&acc_username", am_sqlpass.string ))) );
-			strcpy(ent->client->sess.password, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&acc_pass", am_sqlpass.string ))) );
-			ent->client->sess.todays_kills = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&kills", am_sqlpass.string )) );
-			ent->client->sess.todays_deaths = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&deaths", am_sqlpass.string )) );
-			ent->client->sess.todays_experience = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&experience", am_sqlpass.string )) );
-			ent->client->sess.todays_captures = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&captures", am_sqlpass.string )) );
-			ent->client->sess.todays_returns = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&returns", am_sqlpass.string )) );
-			ent->client->sess.todays_duel_losses = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&duel_losses", am_sqlpass.string )) );
-			ent->client->sess.todays_duel_wins = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&duel_wins", am_sqlpass.string )));
-			ent->client->sess.todays_objectives = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&objectives", am_sqlpass.string )));
-			strcpy(ent->client->sess.rank, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/test/index.php?pass=%s&account_info&rank", am_sqlpass.string ))));
+			trap_SendServerCommand( clientNum, "print \"You are now logged in.\n\"" );
+			strcpy(ent->client->sess.username, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&acc_username", am_sqlpass.string ))) );
+			strcpy(ent->client->sess.password, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&acc_pass", am_sqlpass.string ))) );
+			ent->client->sess.todays_kills = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&kills", am_sqlpass.string )) );
+			ent->client->sess.todays_deaths = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&deaths", am_sqlpass.string )) );
+			ent->client->sess.todays_experience = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&experience", am_sqlpass.string )) );
+			ent->client->sess.todays_captures = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&captures", am_sqlpass.string )) );
+			ent->client->sess.todays_returns = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&returns", am_sqlpass.string )) );
+			ent->client->sess.todays_duel_losses = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&duel_losses", am_sqlpass.string )) );
+			ent->client->sess.todays_duel_wins = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&duel_wins", am_sqlpass.string )));
+			ent->client->sess.todays_objectives = atoi(Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&objectives", am_sqlpass.string )));
+			strcpy(ent->client->sess.rank, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&rank", am_sqlpass.string ))));
 		}
 	}
 	else if (Q_stricmp (cmd, "logout") == 0)
