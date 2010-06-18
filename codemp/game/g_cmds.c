@@ -3580,13 +3580,15 @@ void ClientCommand( int clientNum ) {
 		trap_Argv( 1, username, sizeof( username ) ); // username
 		trap_Argv( 2, password, sizeof( password ) ); // password
 
-		strcpy(login_message, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s&login", am_sqlpass.string, username, password )) ) );
+		strcpy(acc_data, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s&my_info", am_sqlpass.string, username, password )) ) );
 
-		if (strcmp(login_message, "You are now logged in.") == 0) {
+		if (strcmp(acc_data, "error") == 0) {
+			trap_SendServerCommand( clientNum, "print \"Incorrect username/password.\n\"" ) );
+			return;
+		} else {
 			ent->client->sess.loggedin = qtrue;
-			trap_SendServerCommand( clientNum, va("print \"%s\n\"", login_message ) );
+			trap_SendServerCommand( clientNum, va("print \"You are now logged in as %s.\n\"", username ) );
 
-			strcpy(acc_data, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s&my_info", am_sqlpass.string, username, password )) ) );
 			pch = strtok (acc_data," "); //Only the first refers to acc_data, after that, its null.
 			pch2 = strtok (NULL," ");
 			pch3 = strtok (NULL," ");
