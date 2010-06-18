@@ -467,7 +467,6 @@ typedef struct {
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
 	char		experience_gain[1024];
-	char		login_message[1024];
 	char		ipbackup[1024];
 	qboolean	cant_register;
 	qboolean	can_kill;
