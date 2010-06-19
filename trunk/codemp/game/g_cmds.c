@@ -296,26 +296,26 @@ Created 6/4/2010 by NeWaGe
 Curl's a web address file, and gives me the information.
 ==================
 */
-void Web_Update ( gentity_t *ent ) {
-	if (ent->client->sess.loggedin == qtrue){
+void Web_Update ( int target ) {
+	if (g_entities[target].client->sess.loggedin == qtrue){
 		//info here
 		int deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives;
 		char *rank, *username, *password, *ingame_name;
-		deaths = ent->client->sess.todays_deaths;
-		kills = ent->client->sess.todays_kills;
-		experience = ent->client->sess.todays_experience;
-		captures = ent->client->sess.todays_captures;
-		returns = ent->client->sess.todays_returns;
-		duel_losses = ent->client->sess.todays_duel_losses;
-		duel_wins = ent->client->sess.todays_duel_wins;
-		objectives = ent->client->sess.todays_objectives;
-		rank = ent->client->sess.rank;
-		username = ent->client->sess.username;
-		password = ent->client->sess.password;
-		ingame_name = ent->client->pers.netname;
+		deaths = g_entities[target].client->sess.todays_deaths;
+		kills = g_entities[target].client->sess.todays_kills;
+		experience = g_entities[target].client->sess.todays_experience;
+		captures = g_entities[target].client->sess.todays_captures;
+		returns = g_entities[target].client->sess.todays_returns;
+		duel_losses = g_entities[target].client->sess.todays_duel_losses;
+		duel_wins = g_entities[target].client->sess.todays_duel_wins;
+		objectives = g_entities[target].client->sess.todays_objectives;
+		rank = g_entities[target].client->sess.rank;
+		username = g_entities[target].client->sess.username;
+		password = g_entities[target].client->sess.password;
+		ingame_name = g_entities[target].client->pers.netname;
 
-		Curl_Address2( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&update_info&acc_username=%s&acc_pass=%s&deaths=%s&kills=%s&experience=%s&captures=%s&returns=%s&duel_losses=%s&duel_wins=%s&objectives=%s&rank=%s&ingame_name=%s", am_sqlpass.string, username, password, deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives, rank, ingame_name));
-		trap_SendServerCommand( ent-g_entities, "print \"Updated account information.\n\"");
+		Curl_Address2( va("http://jk3arena.net/server/database.php?pass=%s&update_info&acc_username=%s&acc_pass=%s&deaths=%i&kills=%i&experience=%i&captures=%i&returns=%i&duel_losses=%i&duel_wins=%i&objectives=%i&rank=%s&ingame_name=%s", am_sqlpass.string, username, password, deaths, kills, experience, captures, returns, duel_losses, duel_wins, objectives, rank, ingame_name));
+		trap_SendServerCommand( target, "print \"Updated account information.\n\"");
 	}
 }
 
@@ -3557,7 +3557,6 @@ void ClientCommand( int clientNum ) {
 		char username[100];
 		char password[100];
 		char acc_data[1024]; //This string could be big...
-		char login_message[24];
 		char *pch, *pch2, *pch3, *pch4, *pch5, *pch6, *pch7, *pch8, *pch9, *pch10, *pch11;
 
         if ( (trap_Argc() < 3) || (trap_Argc() > 3) ) 
@@ -3583,7 +3582,7 @@ void ClientCommand( int clientNum ) {
 		strcpy(acc_data, va("%s", Curl_Address( va("http://clanmod.org/jk3arena.com/server/database.php?pass=%s&account_info&username=%s&password=%s&my_info", am_sqlpass.string, username, password )) ) );
 
 		if (strcmp(acc_data, "error") == 0) {
-			trap_SendServerCommand( clientNum, "print \"Incorrect username/password.\n\"" ) );
+			trap_SendServerCommand( clientNum, "print \"Incorrect username/password.\n\"" );
 			return;
 		} else {
 			ent->client->sess.loggedin = qtrue;
@@ -3710,7 +3709,7 @@ void ClientCommand( int clientNum ) {
 			trap_SendServerCommand( ent-g_entities, va("print \"Please wait 30 seconds to update again. Time Left: %i\n\"", ent->client->updateTimeLeft ) );
 			return;
 		}
-		Web_Update( ent );
+		Web_Update( ent->client->ps.clientNum );
 		if (ent->client->sess.loggedin == qtrue){
 			ent->client->updateTimeLeft = 30;
 		}
