@@ -806,12 +806,12 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			client->AutoUpdateTime--;
 		}
 
-		//every 5 minutes update the client.
+		//every 30 minutes update the client.
 		//Once you get to the 2nd second, update and restart.
 		//If I put 0, im afraid that when you join game, theres a possibility it might want to do an update.
 		if (client->AutoUpdateTime == 2){
-			Web_Update( ent );
-			client->AutoUpdateTime = 300;
+			Web_Update( ent->client->ps.clientNum );
+			client->AutoUpdateTime = 180;
 		}
 
 		if (client->sess.loggedin == qtrue){
