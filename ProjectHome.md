@@ -1,0 +1,1 @@
+This modification is for the video game, Jedi Knight 3. It will connect a MySQL database via LibCURL, and PHP to the game so that the website and video game are one.
